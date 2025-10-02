@@ -1,4 +1,13 @@
 THIS LOG CONTAINS INFORMATION ON THE WORK THAT HAS BEEN DONE TO COMPLETE THE PROJECT
 
-29/09/25
+25/09/25
+Meeting to discuss the project further. Some things that must be considered to have a complete model:
+- What probability of merging should I assign?
+- How do we make time evolve?
+- How do we implement breaking apart of the bonds?
+- System must satisfy detailed balance.
+
+We decided to start off by simulating a simple system with 4 vertices, 3 of which are connected. I will also try to find a way to visualize the code as it evolves in time.
+
+30/09/25
 Test entry
