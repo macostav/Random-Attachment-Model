@@ -1,13 +1,20 @@
 THIS LOG CONTAINS INFORMATION ON THE WORK THAT HAS BEEN DONE TO COMPLETE THE PROJECT
 
 25/09/25
+TITLE: Meeting to set the project.
 Meeting to discuss the project further. Some things that must be considered to have a complete model:
 - What probability of merging should I assign?
 - How do we make time evolve?
 - How do we implement breaking apart of the bonds?
 - System must satisfy detailed balance.
 
-We decided to start off by simulating a simple system with 4 vertices, 3 of which are connected. I will also try to find a way to visualize the code as it evolves in time.
+We decided to start off by simulating a simple system with 4 vertices, 3 of which are connected. I will also 
+try to find a way to visualize the code as it evolves in time.
 
 30/09/25
-Test entry
+TITLE: Simulation with simplest model.
+Made a simulation of the random attachment model with a very simple graph with 4 vertices, 3 edges, and 3 copies. 
+The way I conceived of visualizing the progression of the simulation is to draw a graph that joins together the elements
+of each component. There are still things I want to clarify, such as why we treat the vertices as distinguishable, how
+I should go about sampling edges (because right now the simulation just goes through a list with a set order until it finds
+the right one), and how to keep track of time.

@@ -76,7 +76,7 @@ def draw_components(components, all_nodes, step, pos):
     nx.draw(G, pos=pos, with_labels=True, node_color=colors,
             node_size=600, cmap=plt.cm.tab10, edgecolors='black')
     plt.title(f"Step {step}  (components: {len(components)})")
-    plt.show()
+    plt.savefig(f"step_{step}.png")
 
 if __name__ == "__main__":
     # Initialize original graph
