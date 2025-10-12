@@ -18,3 +18,16 @@ The way I conceived of visualizing the progression of the simulation is to draw 
 of each component. There are still things I want to clarify, such as why we treat the vertices as distinguishable, how
 I should go about sampling edges (because right now the simulation just goes through a list with a set order until it finds
 the right one), and how to keep track of time.
+
+02/10/25
+TITLE: Meeting on simple model simulation.
+Meeting to discuss the simulation with the simplest model. Things talked about:
+- Is the algorithm already sampling edges uniformly? (can check/prove myself)
+- How to update time such that the rate equations are satisfied?
+    - Two alternatives: can always update or only update time when successful in sampling an edge.
+- Task: reading up on Stochastic Simulation Algorithms (SSAs).
+
+08/10/25
+TITLE: Meeting on SSAs.
+Discussed the paper on how to model reaction processes with SSAs. Decided that it is a priority to understand how
+these algorithms work and that I should spend some time doing this.
