@@ -32,7 +32,23 @@ TITLE: Meeting on SSAs.
 Discussed the paper on how to model reaction processes with SSAs. Decided that it is a priority to understand how
 these algorithms work and that I should spend some time doing this.
 
-23/1025
+23/10/25
 TITLE: Discussing SSAs and convergence to deterministic rate equations.
 Talked about the convergence of the expectation of the number of particles in a species converges to the deterministic rate equations.
 Decided it was time to start simulating SSA with small system.
+
+28/10/25
+TITLE: Convergence in expectation.
+I tried showing that the expectation of the number of species converges to the deterministic rate equation. That is, for the
+reaction A + B <-> C:
+
+dE[A]/dt = koff * C - kon * E[AB]
+
+This is very close to the result I wanted to show. The only thing I would need is E[AB] = E[A]E[B].
+
+29/10/25
+TITLE: Implementation of simple SSA.
+Today I implemented the SSA in two simple systems. Once has 2 species that can form pairs. The other
+has 4 and it can also only form pairs. I noticed that the initial conditions for the number of 
+species seemed to play a rather large role, especially compared with the rate. I'd like to solve the 
+deterministic rate equations to see how my results compare.
