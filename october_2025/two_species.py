@@ -59,8 +59,8 @@ if __name__ == "__main__":
     nB = 30 # Initial number of B
     nAB = 20 # Initial number of AB
 
-    k_1 = 0.01 # Rate A + B -> AB
-    k_2 = 0.45 # Rate AB -> A + B
+    k_1 = 0.05 # Rate A + B -> AB
+    k_2 = 0.15 # Rate AB -> A + B
 
     t = 0 # Initial time
     duration = 100 # Duration of simulation
