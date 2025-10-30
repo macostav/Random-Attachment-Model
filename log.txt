@@ -31,3 +31,8 @@ Meeting to discuss the simulation with the simplest model. Things talked about:
 TITLE: Meeting on SSAs.
 Discussed the paper on how to model reaction processes with SSAs. Decided that it is a priority to understand how
 these algorithms work and that I should spend some time doing this.
+
+23/1025
+TITLE: Discussing SSAs and convergence to deterministic rate equations.
+Talked about the convergence of the expectation of the number of particles in a species converges to the deterministic rate equations.
+Decided it was time to start simulating SSA with small system.
