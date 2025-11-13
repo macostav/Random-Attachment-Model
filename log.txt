@@ -52,3 +52,11 @@ Today I implemented the SSA in two simple systems. Once has 2 species that can f
 has 4 and it can also only form pairs. I noticed that the initial conditions for the number of 
 species seemed to play a rather large role, especially compared with the rate. I'd like to solve the 
 deterministic rate equations to see how my results compare.
+
+13/11/25
+TITLE: Checking convergence of SSA to deterministic equations.
+I wanted to check that the SSA for the 2-square actually converged to the deterministic rate equations.
+To do this, I solved the system of 3 equations by noticing that because we are working in the Canonical
+Ensemble, the total number of particles is always constant (nA+nAB and nB+nAB). This allowed me to 
+analytically solve the ODEs, and upon plotting them I was able to observe that indeed the SSA followed
+the expected behaviour. 

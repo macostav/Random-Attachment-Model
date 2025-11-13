@@ -59,7 +59,7 @@ if __name__ == "__main__":
     nCD = 0 # Initial number of CD
 
     k_1 = 0.05 # Rate A + B -> AB
-    k_2 = 0.45 # Rate AB -> A + B
+    k_2 = 0.25 # Rate AB -> A + B
     k_3 = 0.04 # Rate A + C -> AC
     k_4 = 0.22 # Rate AC -> A + C
     k_5 = 0.05 # Rate B + D -> BD
@@ -171,5 +171,5 @@ if __name__ == "__main__":
     plt.xlabel("Time (s)")
     plt.ylabel("Number of Species")
     plt.legend()
-    plt.show()
+    plt.savefig("four_species.png")
 
