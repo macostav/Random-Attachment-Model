@@ -1,5 +1,7 @@
 import math
 import random
+import numpy as np
+from scipy.integrate import solve_ivp
 import matplotlib.pyplot as plt
 
 """
@@ -45,6 +47,44 @@ def propensity(k, n1, n2):
     """
     prop = k * n1 * n2
     return prop
+
+def odes(t, y, rates):
+    """
+    Return odes for the four species system.
+
+    :param t: time
+    :param y: state vector
+    :param rates: reaction rates
+    """
+    A, B, C, D, AB, AC, BD, CD = y # State vector
+
+    k1f, k1r, k2f, k2r, k3f, k3r, k4f, k4r = rates
+
+    # Reaction rates
+    r1f = k1f * A * B
+    r1r = k1r * AB
+
+    r2f = k2f * A * C
+    r2r = k2r * AC
+
+    r3f = k3f * B * D
+    r3r = k3r * BD
+
+    r4f = k4f * C * D
+    r4r = k4r * CD
+
+    # ODEs
+    dA  = -r1f + r1r - r2f + r2r
+    dB  = -r1f + r1r - r3f + r3r
+    dC  = -r2f + r2r - r4f + r4r
+    dD  = -r3f + r3r - r4f + r4r
+
+    dAB =  r1f - r1r
+    dAC =  r2f - r2r
+    dBD =  r3f - r3r
+    dCD =  r4f - r4r
+
+    return [dA, dB, dC, dD, dAB, dAC, dBD, dCD]
 
 if __name__ == "__main__":
     # Starting parameters
@@ -155,21 +195,46 @@ if __name__ == "__main__":
         array_CD.append(nCD)
 
         array_t.append(t)
+
+    ### Solving ODEs
+    y0 = [array_A[0], array_B[0], array_C[0], array_D[0], array_AB[0], array_AC[0], array_BD[0], array_CD[0]] 
+    rates = [k_1, k_2, k_3, k_4, k_5, k_6, k_7, k_8] 
+    
+    t_span = (0, duration) 
+    t_eval = np.linspace(*t_span, 1000) 
+    
+    sol = solve_ivp(odes, t_span, y0, t_eval=t_eval, method='LSODA', args=(rates,))
     
     # Plot results
-    plt.plot(array_t, array_A, label="A")
-    plt.plot(array_t, array_B, label="B")
-    plt.plot(array_t, array_C, label="C")
-    plt.plot(array_t, array_D, label="D")
+    ssa_data = {
+    "A":  array_A,
+    "B":  array_B,
+    "C":  array_C,
+    "D":  array_D,
+    "AB": array_AB,
+    "AC": array_AC,
+    "BD": array_BD,
+    "CD": array_CD
+    }
 
-    plt.plot(array_t, array_AB, label="AB")
-    plt.plot(array_t, array_AC, label="AC")
-    plt.plot(array_t, array_BD, label="BD")
-    plt.plot(array_t, array_CD, label="CD")
+    species_labels = ["A","B","C","D","AB","AC","BD","CD"]
 
-    # Labels
-    plt.xlabel("Time (s)")
-    plt.ylabel("Number of Species")
-    plt.legend()
-    plt.savefig("four_species.png")
+    for i, label in enumerate(species_labels):
+        plt.figure(figsize=(6,4))
+
+        # plot SSA trajectory
+        plt.plot(array_t, ssa_data[label], label=f"{label} (SSA)")
+
+        # plot ODE trajectory
+        plt.plot(sol.t, sol.y[i], '--', label=f"{label} (ODE)")
+
+        plt.xlabel("Time (s)")
+        plt.ylabel(f"{label} Count")
+        plt.title(f"{label}: SSA vs ODE")
+        plt.legend()
+
+        # save unique file for each species
+        plt.savefig(f"{label}_four_species.png", dpi=200)
+        plt.close()
+
 

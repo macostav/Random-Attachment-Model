@@ -80,14 +80,16 @@ def propensity(k_1, k_2, nA, nB, nAB):
     a2 = k_2 * nAB
     return a1, a2
 
-def plot_all_results(array_A, array_B, array_AB, deterministic_A, deterministic_B, deterministic_AB, array_t):
+def plot_all_results(k_1, k_2, array_A, array_B, array_AB, deterministic_A, deterministic_B, deterministic_AB, array_t):
     """
-    Plot the results of the simulation.
+    Plot all the results of the simulation.
 
     :param array_A, array_B, array_AB: arrays with number of species
     :param deterministic_A, deterministic_B, deterministic_AB: arrays with determinisic solutions
     :param array_t: array keeping track of time
     """
+    plt.figure()  # Start a new figure
+
     plt.plot(array_t, array_A, label="A")
     plt.plot(array_t, array_B, label="B")
     plt.plot(array_t, array_AB, label="AB")
@@ -96,24 +98,46 @@ def plot_all_results(array_A, array_B, array_AB, deterministic_A, deterministic_
     plt.plot(array_t, deterministic_AB, label="det_AB")
 
     # Labels
-    plt.title("kon = 0.05, koff = 0.15") # !!! Change depending on rates
+    plt.title(f"kon = {k_1}, koff = {k_2}")
     plt.xlabel("Time (s)")
     plt.ylabel("Number of Species")
     plt.legend()
     plt.savefig("two_species_CHECK.png")
     #plt.show()
 
+def plot_species(species, k_1, k_2, array_species, deterministic, array_t):
+    """
+    Plots the results of only one species.
+
+    :param species: which species to plot ("A", "B", or "AB")
+    :param k_1, k_2: reaction rates
+    :param array_species: array with the number of species from simulation
+    :param deterministic: solution to determinisic ODE for species
+    :param array_t: array of time points
+    """
+    plt.figure()  # Start a new figure
+
+    plt.plot(array_t, array_species, label="SSA")
+    plt.plot(array_t, deterministic, label="ODE", linewidth =1)
+
+    # Labels
+    plt.title(f"Species {species} with kon = {k_1}, koff = {k_2}")
+    plt.xlabel("Time (s)")
+    plt.ylabel("Number of Species")
+    plt.legend()
+    plt.savefig(f"two_species_{species}.png")
+
 if __name__ == "__main__":
     # Starting parameters
-    nA = 50 # Initial number of A
-    nB = 30 # Initial number of B
-    nAB = 20 # Initial number of AB
+    nA = 5000 # Initial number of A
+    nB = 3000 # Initial number of B
+    nAB = 2000 # Initial number of AB
 
     k_1 = 0.05 # Rate A + B -> AB
     k_2 = 0.15 # Rate AB -> A + B
 
     t = 0 # Initial time
-    duration = 100 # Duration of simulation
+    duration = 1 # Duration of simulation
 
     # Initialize arrays
     array_A = [nA]
@@ -148,8 +172,11 @@ if __name__ == "__main__":
         array_t.append(t)
     
     # Plot results
-    deterministic_A, deterministic_B, deterministic_AB = deterministic_arrays(nA, nB, nAB, k_1, k_2, array_t)
-    plot_all_results(array_A, array_B, array_AB, deterministic_A, deterministic_B, deterministic_AB, array_t)
+    deterministic_A, deterministic_B, deterministic_AB = deterministic_arrays(array_A[0], array_B[0], array_AB[0], k_1, k_2, array_t)
+    plot_all_results(k_1, k_2, array_A, array_B, array_AB, deterministic_A, deterministic_B, deterministic_AB, array_t)
+    plot_species("A", k_1, k_2, array_A, deterministic_A, array_t)
+    plot_species("B", k_1, k_2, array_B, deterministic_B, array_t)
+    plot_species("AB", k_1, k_2, array_AB, deterministic_AB, array_t)
 
 
 
