@@ -12,7 +12,7 @@ A — B
 C - D
 
 We add the case where clusters can start to form. So we now have in total
-13 species: {A,B,C,D,AB,AC,BD,CD,ABD,BDC,DCA,CAB,ABCD}.
+13 species: {A,B,C,D,AB,AC,BD,CD,ABD,BCD,ACD,ABC,ABCD}.
 
 We work in the case where only pairs can form. We consider 8 species:
 {A, B, C, D, AB, AC, BD, CD}. This gives us 4 reversible reactions,
@@ -33,18 +33,18 @@ monomer + dimer <-> trimer:
 10. ABD -> AB + D
 11. A + BD -> ABD
 12. ABD -> A + BD
-13. BD + C -> BDC
-14. BDC -> BD + C
-15. B + CD -> BDC
-16. BDC -> B + CD
-17. DC + A -> DCA
-18. DCA -> DC + A
-19. AC + D -> DCA
-20. DCA -> AC + D
-21. CA + B -> CAB
-22. CAB -> CA + B
-23. AB + C -> CAB
-24. CAB -> AB + C
+13. BD + C -> BCD
+14. BCD -> BD + C
+15. B + CD -> BCD
+16. BCD -> B + CD
+17. DC + A -> ACD
+18. ACD -> DC + A
+19. AC + D -> ACD
+20. ACD -> AC + D
+21. CA + B -> ABC
+22. ABC -> CA + B
+23. AB + C -> ABC
+24. ABC -> AB + C
 
 dimer + dimer <-> tetramer:
 25. AB + CD -> ABCD
@@ -55,12 +55,12 @@ dimer + dimer <-> tetramer:
 trimer + monomer <-> tetramer:
 29. ABD + C -> ABCD
 30. ABCD -> ABD + C
-31. BDC + A -> ABCD
-32. ABCD -> BDC + A
-33. DCA + B -> ABCD
-34. ABCD -> DCA + B
-35. CAB + D -> ABCD
-36. ABCD -> CAB + D
+31. BCD + A -> ABCD
+32. ABCD -> BCD + A
+33. ACD + B -> ABCD
+34. ABCD -> ACD + B
+35. ABC + D -> ABCD
+36. ABCD -> ABC + D
 """
 import numpy as np
 import random
@@ -71,7 +71,7 @@ from collections import OrderedDict
 species = [
     "A", "B", "C", "D",        # monomers
     "AB", "AC", "BD", "CD",    # dimers
-    "ABD", "BDC", "DCA", "CAB",# trimers
+    "ABD", "BCD", "ACD", "ABC",# trimers
     "ABCD"                     # tetramer
 ]
 n_species = len(species)
@@ -86,20 +86,20 @@ rates = {
 
     "k9":  0.05, "k10": 0.25,  # AB + D <-> ABD
     "k11": 0.04, "k12": 0.22,  # A + BD <-> ABD
-    "k13": 0.05, "k14": 0.07,  # BD + C <-> BDC
-    "k15": 0.12, "k16": 0.32,  # B + CD <-> BDC
-    "k17": 0.05, "k18": 0.25,  # CD + A <-> DCA
-    "k19": 0.04, "k20": 0.22,  # AC + D <-> DCA
-    "k21": 0.05, "k22": 0.07,  # AC + B <-> CAB
-    "k23": 0.12, "k24": 0.32,  # AB + C <-> CAB
+    "k13": 0.05, "k14": 0.07,  # BD + C <-> BCD
+    "k15": 0.12, "k16": 0.32,  # B + CD <-> BCD
+    "k17": 0.05, "k18": 0.25,  # CD + A <-> ACD
+    "k19": 0.04, "k20": 0.22,  # AC + D <-> ACD
+    "k21": 0.05, "k22": 0.07,  # AC + B <-> ABC
+    "k23": 0.12, "k24": 0.32,  # AB + C <-> ABC
 
     "k25": 0.95, "k26": 0.05,  # AB + CD <-> ABCD
     "k27": 0.94, "k28": 0.02,  # AC + BD <-> ABCD
 
     "k29": 0.85, "k30": 0.05,  # ABD + C <-> ABCD
-    "k31": 0.84, "k32": 0.02,  # BDC + A <-> ABCD
-    "k33": 0.85, "k34": 0.07,  # DCA + B <-> ABCD
-    "k35": 0.82, "k36": 0.12   # CAB + D <-> ABCD
+    "k31": 0.84, "k32": 0.02,  # BCD + A <-> ABCD
+    "k33": 0.85, "k34": 0.07,  # ACD + B <-> ABCD
+    "k35": 0.82, "k36": 0.12   # ABC + D <-> ABCD
 }
 
 # ---------------------------
@@ -128,23 +128,23 @@ reactions = [
     {"reactants": {"A":1, "BD":1}, "products": {"ABD":1}, "k": "k11"},
     {"reactants": {"ABD":1},       "products": {"A":1, "BD":1}, "k": "k12"},
 
-    {"reactants": {"BD":1, "C":1}, "products": {"BDC":1}, "k": "k13"},
-    {"reactants": {"BDC":1},       "products": {"BD":1, "C":1}, "k": "k14"},
+    {"reactants": {"BD":1, "C":1}, "products": {"BCD":1}, "k": "k13"},
+    {"reactants": {"BCD":1},       "products": {"BD":1, "C":1}, "k": "k14"},
 
-    {"reactants": {"B":1, "CD":1}, "products": {"BDC":1}, "k": "k15"},
-    {"reactants": {"BDC":1},       "products": {"B":1, "CD":1}, "k": "k16"},
+    {"reactants": {"B":1, "CD":1}, "products": {"BCD":1}, "k": "k15"},
+    {"reactants": {"BCD":1},       "products": {"B":1, "CD":1}, "k": "k16"},
 
-    {"reactants": {"CD":1, "A":1}, "products": {"DCA":1}, "k": "k17"},
-    {"reactants": {"DCA":1},       "products": {"CD":1, "A":1}, "k": "k18"},
+    {"reactants": {"CD":1, "A":1}, "products": {"ACD":1}, "k": "k17"},
+    {"reactants": {"ACD":1},       "products": {"CD":1, "A":1}, "k": "k18"},
 
-    {"reactants": {"AC":1, "D":1}, "products": {"DCA":1}, "k": "k19"},
-    {"reactants": {"DCA":1},       "products": {"AC":1, "D":1}, "k": "k20"},
+    {"reactants": {"AC":1, "D":1}, "products": {"ACD":1}, "k": "k19"},
+    {"reactants": {"ACD":1},       "products": {"AC":1, "D":1}, "k": "k20"},
 
-    {"reactants": {"AC":1, "B":1}, "products": {"CAB":1}, "k": "k21"},
-    {"reactants": {"CAB":1},       "products": {"AC":1, "B":1}, "k": "k22"},
+    {"reactants": {"AC":1, "B":1}, "products": {"ABC":1}, "k": "k21"},
+    {"reactants": {"ABC":1},       "products": {"AC":1, "B":1}, "k": "k22"},
 
-    {"reactants": {"AB":1, "C":1}, "products": {"CAB":1}, "k": "k23"},
-    {"reactants": {"CAB":1},       "products": {"AB":1, "C":1}, "k": "k24"},
+    {"reactants": {"AB":1, "C":1}, "products": {"ABC":1}, "k": "k23"},
+    {"reactants": {"ABC":1},       "products": {"AB":1, "C":1}, "k": "k24"},
 
     # dimer + dimer <-> tetramer
     {"reactants": {"AB":1, "CD":1}, "products": {"ABCD":1}, "k": "k25"},
@@ -157,14 +157,14 @@ reactions = [
     {"reactants": {"ABD":1, "C":1}, "products": {"ABCD":1}, "k": "k29"},
     {"reactants": {"ABCD":1},       "products": {"ABD":1, "C":1}, "k": "k30"},
 
-    {"reactants": {"BDC":1, "A":1}, "products": {"ABCD":1}, "k": "k31"},
-    {"reactants": {"ABCD":1},       "products": {"BDC":1, "A":1}, "k": "k32"},
+    {"reactants": {"BCD":1, "A":1}, "products": {"ABCD":1}, "k": "k31"},
+    {"reactants": {"ABCD":1},       "products": {"BCD":1, "A":1}, "k": "k32"},
 
-    {"reactants": {"DCA":1, "B":1}, "products": {"ABCD":1}, "k": "k33"},
-    {"reactants": {"ABCD":1},       "products": {"DCA":1, "B":1}, "k": "k34"},
+    {"reactants": {"ACD":1, "B":1}, "products": {"ABCD":1}, "k": "k33"},
+    {"reactants": {"ABCD":1},       "products": {"ACD":1, "B":1}, "k": "k34"},
 
-    {"reactants": {"CAB":1, "D":1}, "products": {"ABCD":1}, "k": "k35"},
-    {"reactants": {"ABCD":1},       "products": {"CAB":1, "D":1}, "k": "k36"},
+    {"reactants": {"ABC":1, "D":1}, "products": {"ABCD":1}, "k": "k35"},
+    {"reactants": {"ABCD":1},       "products": {"ABC":1, "D":1}, "k": "k36"},
 ]
 
 n_reactions = len(reactions)
@@ -267,6 +267,59 @@ def gillespie_ssa(initial_counts, t_max, reactions, reactant_lists, stoich_chang
 
     return np.array(times), history
 
+def odes(t,y):
+    """
+    Return odes for the system.
+
+    :param t: time
+    :param y: state vector
+    :return: odes
+    """
+    A, B, C, D, AB, AC, BD, CD, ABC, ABD, ACD, BCD, ABCD = y
+    km = rates
+
+    dA = (km["k2"]*AB + km["k4"]*AC + km["k12"]*ABD + km["k18"]*ACD + km["k32"]*ABCD
+            - (km["k1"]*B + km["k3"]*C + km["k11"]*BD + km["k17"]*CD + km["k31"]*BCD)*A)
+
+    dB = (km["k2"]*AB + km["k6"]*BD + km["k16"]*BCD + km["k22"]*ABC + km["k34"]*ABCD
+            - (km["k1"]*A + km["k5"]*D + km["k15"]*CD + km["k21"]*AC + km["k33"]*ACD)*B)
+
+    dC = (km["k4"]*AC + km["k8"]*CD + km["k14"]*BCD + km["k24"]*ABC + km["k30"]*ABCD
+            - (km["k3"]*A + km["k7"]*D + km["k13"]*BD + km["k23"]*AB + km["k29"]*ABD)*C)
+
+    dD = (km["k6"]*BD + km["k8"]*CD + km["k10"]*ABD + km["k20"]*ACD + km["k36"]*ABCD
+            - (km["k5"]*B + km["k7"]*C + km["k9"]*AB + km["k19"]*AC + km["k35"]*ABC)*D)
+
+    dAB = (km["k1"]*A*B + km["k10"]*ABD + km["k24"]*ABC + km["k26"]*ABCD
+            - (km["k2"] + km["k9"]*D + km["k23"]*C + km["k25"]*CD)*AB)
+
+    dAC = (km["k3"]*A*C + km["k20"]*ACD + km["k22"]*ABC + km["k28"]*ABCD
+            - (km["k4"] + km["k19"]*D + km["k21"]*B + km["k27"]*BD)*AC)
+
+    dBD = (km["k5"]*B*D + km["k12"]*ABD + km["k14"]*BCD + km["k28"]*ABCD
+            - (km["k6"] + km["k11"]*A + km["k13"]*C + km["k27"]*AC)*BD)
+
+    dCD = (km["k7"]*C*D + km["k16"]*BCD + km["k18"]*ACD + km["k26"]*ABCD
+            - (km["k8"] + km["k15"]*B + km["k17"]*A + km["k25"]*AB)*CD)
+
+    dABC = (km["k21"]*B*AC + km["k23"]*C*AB + km["k36"]*ABCD
+                - (km["k22"] + km["k24"] + km["k35"]*D)*ABC)
+
+    dABD = (km["k9"]*D*AB + km["k11"]*A*BD + km["k30"]*ABCD
+                - (km["k10"] + km["k12"] + km["k29"]*C)*ABD)
+
+    dACD = (km["k17"]*A*CD + km["k19"]*D*AC + km["k34"]*ABCD
+                - (km["k18"] + km["k20"] + km["k33"]*B)*ACD)
+
+    dBCD = (km["k13"]*C*BD + km["k15"]*B*CD + km["k32"]*ABCD
+                - (km["k14"] + km["k16"] + km["k31"]*A)*BCD)
+
+    dABCD = (km["k25"]*AB*CD + km["k27"]*AC*BD + km["k29"]*C*ABD + km["k31"]*A*BCD
+                + km["k33"]*B*ACD + km["k35"]*D*ABC
+                - (km["k26"] + km["k28"] + km["k30"] + km["k32"] + km["k34"] + km["k36"])*ABCD)
+
+    return [dA, dB, dC, dD, dAB, dAC, dBD, dCD, dABC, dABD, dACD, dBCD, dABCD]
+
 if __name__ == "__main__":
     # initial counts: set these as you like
     initial_counts = np.zeros(n_species, dtype=int)
@@ -281,18 +334,87 @@ if __name__ == "__main__":
     times, history = gillespie_ssa(initial_counts, duration, reactions,
                                    reactant_lists, stoich_changes, rates)
 
-    for s in species:
+    
+    # Solve deterministic ODEs for comparison
+    y0 = initial_counts.astype(float)
+    
+    t_span = (0, duration) 
+    t_eval = np.linspace(*t_span, 1000) 
+
+    sol = solve_ivp(odes, t_span, y0, t_eval=t_eval, method='LSODA')
+
+    # Plotting results
+    for i,s in enumerate(species):
         plt.figure(figsize=(6,3))
-        plt.step(times, history[s], where="post", label=f"{s} (SSA)")
+        plt.plot(times, history[s], label=f"{s} (SSA)")
+        plt.plot(sol.t, sol.y[i], '--', label=f"{s} (ODE)")
         plt.xlabel("Time")
         plt.ylabel("Count")
         plt.title(f"{s} (SSA)")
         plt.legend()
         plt.tight_layout()
-        plt.savefig(f"full_square_{s}.png", dpi=200)
+        #plt.savefig(f"full_square_{s}.png", dpi=200)
         plt.close()
 
     print("SSA finished.")
+
+    #### THIS PART NEEDS TO BE CHECKED ####
+
+    snapshot_times = [0, 30, 60, 90]   # choose whatever times you want
+
+    # categorize species by size
+    monomers = [s for s in species if len(s) == 1]
+    dimers   = [s for s in species if len(s) == 2]
+    trimers  = [s for s in species if len(s) == 3]
+    tetramers= [s for s in species if len(s) == 4]
+
+    groups = {
+        "Monomers": monomers,
+        "Dimers": dimers,
+        "Trimers": trimers,
+        "Tetramers": tetramers,
+    }
+
+    # helper to get snapshot index
+    def nearest_index(array, value):
+        return np.argmin(np.abs(array - value))
+
+    for t_snap in snapshot_times:
+        idx_snap = nearest_index(times, t_snap)
+        state = {s: history[s][idx_snap] for s in species}
+        total = sum(state.values())
+        
+        # compute proportions per subspecies
+        proportions = {g: np.array([state[s] / total for s in subspecies])
+                    for g, subspecies in groups.items()}
+        
+        # plot
+        fig, ax = plt.subplots(figsize=(8, 5))
+        bottom = np.zeros(len(groups))
+
+        # consistent color set for species
+        cmap = plt.get_cmap("tab20")
+        color_map = {s: cmap(i % 20) for i, s in enumerate(species)}
+
+        for s in species:
+            # find which group this species belongs to
+            for j, (gname, subspecies) in enumerate(groups.items()):
+                if s in subspecies:
+                    frac = state[s] / total
+                    ax.bar(gname, frac, bottom=bottom[j], color=color_map[s], label=s if bottom[j] == 0 else "")
+                    bottom[j] += frac
+
+        ax.set_ylabel("Proportion")
+        ax.set_title(f"Species Proportions at t = {t_snap:.1f}")
+        
+        # avoid duplicate entries in legend
+        handles, labels = ax.get_legend_handles_labels()
+        unique = dict(zip(labels, handles))
+        ax.legend(unique.values(), unique.keys(), bbox_to_anchor=(1.05, 1), loc="upper left")
+        
+        plt.tight_layout()
+        plt.savefig(f"snapshot_proportions_t{t_snap}.png", dpi=200)
+        plt.close()
 
 
 

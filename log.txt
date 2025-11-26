@@ -59,4 +59,16 @@ I wanted to check that the SSA for the 2-square actually converged to the determ
 To do this, I solved the system of 3 equations by noticing that because we are working in the Canonical
 Ensemble, the total number of particles is always constant (nA+nAB and nB+nAB). This allowed me to 
 analytically solve the ODEs, and upon plotting them I was able to observe that indeed the SSA followed
-the expected behaviour. 
+the expected behaviour.
+
+20/11/25
+TITLE: Assembly of the 4-square.
+Extended the implementation to complete the assembly of the 4-square. It is difficult because
+there are a lot more equations to consider now. It appears as if everything is working correctly,
+but I still need to check convergence to the deterministic equations to ensure everything is fine.
+
+25/11/25
+TITLE: Improving the 4-square.
+Solved the deterministic ODEs to check the 4-square system. Added a new way of visualizing the
+progress of the simulation: bar charts showing the proportion of species that have been formed
+so far.

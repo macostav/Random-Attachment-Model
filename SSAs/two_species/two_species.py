@@ -118,14 +118,21 @@ def plot_species(species, k_1, k_2, array_species, deterministic, array_t):
     plt.figure()  # Start a new figure
 
     plt.plot(array_t, array_species, label="SSA")
-    plt.plot(array_t, deterministic, label="ODE", linewidth =1)
+    plt.plot(array_t, deterministic, label="ODE", linewidth =3)
 
     # Labels
-    plt.title(f"Species {species} with kon = {k_1}, koff = {k_2}")
-    plt.xlabel("Time (s)")
-    plt.ylabel("Number of Species")
-    plt.legend()
-    plt.savefig(f"two_species_{species}.png")
+    plt.ylim(4980, 5010)
+    plt.title(f"Species {species} with kon = {k_1}, koff = {k_2}", fontsize=18)
+    plt.xlabel("Time (s)", fontsize=16)
+    plt.ylabel("Number of Species", fontsize=16)
+
+    plt.xticks(fontsize=14)
+    plt.yticks(fontsize=14)
+
+    plt.legend(fontsize=14)
+    plt.tight_layout()
+    plt.savefig(f"two_species_{species}.png", dpi=200)
+
 
 if __name__ == "__main__":
     # Starting parameters
@@ -173,9 +180,9 @@ if __name__ == "__main__":
     
     # Plot results
     deterministic_A, deterministic_B, deterministic_AB = deterministic_arrays(array_A[0], array_B[0], array_AB[0], k_1, k_2, array_t)
-    plot_all_results(k_1, k_2, array_A, array_B, array_AB, deterministic_A, deterministic_B, deterministic_AB, array_t)
-    plot_species("A", k_1, k_2, array_A, deterministic_A, array_t)
-    plot_species("B", k_1, k_2, array_B, deterministic_B, array_t)
+    #plot_all_results(k_1, k_2, array_A, array_B, array_AB, deterministic_A, deterministic_B, deterministic_AB, array_t)
+    #plot_species("A", k_1, k_2, array_A, deterministic_A, array_t)
+    #plot_species("B", k_1, k_2, array_B, deterministic_B, array_t)
     plot_species("AB", k_1, k_2, array_AB, deterministic_AB, array_t)
 
 
