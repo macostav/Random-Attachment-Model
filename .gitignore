@@ -11,3 +11,6 @@ __pycache__/
 # IDE settings (optional, depending on what you use)
 .vscode/
 .idea/
+
+# Images
+.png

@@ -79,27 +79,27 @@ idx = {s: i for i, s in enumerate(species)}
 
 # Rate dictionary (k1..k36)
 rates = {
-    "k1": 0.05,  "k2": 0.25,   # A + B <-> AB
-    "k3": 0.04,  "k4": 0.22,   # A + C <-> AC
-    "k5": 0.05,  "k6": 0.07,   # B + D <-> BD
-    "k7": 0.12,  "k8": 0.32,   # C + D <-> CD
+    "k1": 1,  "k2": 0,   # A + B <-> AB
+    "k3": 1,  "k4": 0,   # A + C <-> AC
+    "k5": 1,  "k6": 0,   # B + D <-> BD
+    "k7": 1,  "k8": 0,   # C + D <-> CD
 
-    "k9":  0.05, "k10": 0.25,  # AB + D <-> ABD
-    "k11": 0.04, "k12": 0.22,  # A + BD <-> ABD
-    "k13": 0.05, "k14": 0.07,  # BD + C <-> BCD
-    "k15": 0.12, "k16": 0.32,  # B + CD <-> BCD
-    "k17": 0.05, "k18": 0.25,  # CD + A <-> ACD
-    "k19": 0.04, "k20": 0.22,  # AC + D <-> ACD
-    "k21": 0.05, "k22": 0.07,  # AC + B <-> ABC
-    "k23": 0.12, "k24": 0.32,  # AB + C <-> ABC
+    "k9":  1, "k10": 0,  # AB + D <-> ABD
+    "k11": 1, "k12": 0,  # A + BD <-> ABD
+    "k13": 1, "k14": 0,  # BD + C <-> BCD
+    "k15": 1, "k16": 0,  # B + CD <-> BCD
+    "k17": 1, "k18": 0,  # CD + A <-> ACD
+    "k19": 1, "k20": 0,  # AC + D <-> ACD
+    "k21": 1, "k22": 0,  # AC + B <-> ABC
+    "k23": 1, "k24": 0,  # AB + C <-> ABC
 
-    "k25": 0.95, "k26": 0.05,  # AB + CD <-> ABCD
-    "k27": 0.94, "k28": 0.02,  # AC + BD <-> ABCD
+    "k25": 1, "k26": 0,  # AB + CD <-> ABCD
+    "k27": 1, "k28": 0,  # AC + BD <-> ABCD
 
-    "k29": 0.85, "k30": 0.05,  # ABD + C <-> ABCD
-    "k31": 0.84, "k32": 0.02,  # BCD + A <-> ABCD
-    "k33": 0.85, "k34": 0.07,  # ACD + B <-> ABCD
-    "k35": 0.82, "k36": 0.12   # ABC + D <-> ABCD
+    "k29": 1, "k30": 0,  # ABD + C <-> ABCD
+    "k31": 1, "k32": 0,  # BCD + A <-> ABCD
+    "k33": 1, "k34": 0,  # ACD + B <-> ABCD
+    "k35": 1, "k36": 0   # ABC + D <-> ABCD
 }
 
 # ---------------------------
@@ -323,13 +323,13 @@ def odes(t,y):
 if __name__ == "__main__":
     # initial counts: set these as you like
     initial_counts = np.zeros(n_species, dtype=int)
-    initial_counts[idx["A"]] = 50
-    initial_counts[idx["B"]] = 50
-    initial_counts[idx["C"]] = 50
-    initial_counts[idx["D"]] = 50
+    initial_counts[idx["A"]] = 100
+    initial_counts[idx["B"]] = 100
+    initial_counts[idx["C"]] = 100
+    initial_counts[idx["D"]] = 100
     # all complexes start at 0
 
-    duration = 100.0  # simulation time
+    duration = 500.0  # simulation time
 
     times, history = gillespie_ssa(initial_counts, duration, reactions,
                                    reactant_lists, stoich_changes, rates)
@@ -353,16 +353,17 @@ if __name__ == "__main__":
         plt.title(f"{s} (SSA)")
         plt.legend()
         plt.tight_layout()
-        #plt.savefig(f"full_square_{s}.png", dpi=200)
+        plt.savefig(f"full_square_{s}.png", dpi=200)
         plt.close()
 
     print("SSA finished.")
 
-    #### THIS PART NEEDS TO BE CHECKED ####
+    #### VISUALIZATION OF SPECIES PROPORTIONS ####
 
-    snapshot_times = [0, 30, 60, 90]   # choose whatever times you want
+    #snapshot_times = np.linspace(0, duration, 3)
+    snapshot_times = [0, 0.1, 0.3, 1, duration]
 
-    # categorize species by size
+    # Categorize species by size
     monomers = [s for s in species if len(s) == 1]
     dimers   = [s for s in species if len(s) == 2]
     trimers  = [s for s in species if len(s) == 3]
@@ -375,7 +376,7 @@ if __name__ == "__main__":
         "Tetramers": tetramers,
     }
 
-    # helper to get snapshot index
+    # Helper to get snapshot index
     def nearest_index(array, value):
         return np.argmin(np.abs(array - value))
 
@@ -384,20 +385,22 @@ if __name__ == "__main__":
         state = {s: history[s][idx_snap] for s in species}
         total = sum(state.values())
         
-        # compute proportions per subspecies
+        # Compute proportions per subspecies
         proportions = {g: np.array([state[s] / total for s in subspecies])
                     for g, subspecies in groups.items()}
+
+        print(f"Proportions: {proportions["Tetramers"]}")
         
-        # plot
+        # Plot
         fig, ax = plt.subplots(figsize=(8, 5))
         bottom = np.zeros(len(groups))
 
-        # consistent color set for species
+        # Consistent color set for species
         cmap = plt.get_cmap("tab20")
         color_map = {s: cmap(i % 20) for i, s in enumerate(species)}
 
         for s in species:
-            # find which group this species belongs to
+            # Find which group this species belongs to
             for j, (gname, subspecies) in enumerate(groups.items()):
                 if s in subspecies:
                     frac = state[s] / total
@@ -407,7 +410,7 @@ if __name__ == "__main__":
         ax.set_ylabel("Proportion")
         ax.set_title(f"Species Proportions at t = {t_snap:.1f}")
         
-        # avoid duplicate entries in legend
+        # Avoid duplicate entries in legend
         handles, labels = ax.get_legend_handles_labels()
         unique = dict(zip(labels, handles))
         ax.legend(unique.values(), unique.keys(), bbox_to_anchor=(1.05, 1), loc="upper left")
