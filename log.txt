@@ -72,3 +72,9 @@ TITLE: Improving the 4-square.
 Solved the deterministic ODEs to check the 4-square system. Added a new way of visualizing the
 progress of the simulation: bar charts showing the proportion of species that have been formed
 so far.
+
+27/11/25
+TITLE: All forward experiment.
+Ran the experiment where all on rates are 1, and no backwards reactions are allowed. To better
+understand the result of this system (proportion of 4-square is about 0.5), ran some analysis
+on a simplified set of ODEs to describe this system.

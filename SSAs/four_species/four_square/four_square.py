@@ -3,6 +3,7 @@ import random
 import numpy as np
 from scipy.integrate import solve_ivp
 import matplotlib.pyplot as plt
+from collections import OrderedDict
 
 """
 Testing SSA from paper. The structure we study is the following:
@@ -62,11 +63,6 @@ trimer + monomer <-> tetramer:
 35. ABC + D -> ABCD
 36. ABCD -> ABC + D
 """
-import numpy as np
-import random
-import math
-import matplotlib.pyplot as plt
-from collections import OrderedDict
 
 species = [
     "A", "B", "C", "D",        # monomers
@@ -78,28 +74,31 @@ n_species = len(species)
 idx = {s: i for i, s in enumerate(species)}
 
 # Rate dictionary (k1..k36)
+energy = 1
+kon = 1
+koff = kon * np.exp(energy)
 rates = {
-    "k1": 1,  "k2": 0,   # A + B <-> AB
-    "k3": 1,  "k4": 0,   # A + C <-> AC
-    "k5": 1,  "k6": 0,   # B + D <-> BD
-    "k7": 1,  "k8": 0,   # C + D <-> CD
+    "k1": kon,  "k2": koff,   # A + B <-> AB
+    "k3": kon,  "k4": koff,   # A + C <-> AC
+    "k5": kon,  "k6": koff,   # B + D <-> BD
+    "k7": kon,  "k8": koff,   # C + D <-> CD
 
-    "k9":  1, "k10": 0,  # AB + D <-> ABD
-    "k11": 1, "k12": 0,  # A + BD <-> ABD
-    "k13": 1, "k14": 0,  # BD + C <-> BCD
-    "k15": 1, "k16": 0,  # B + CD <-> BCD
-    "k17": 1, "k18": 0,  # CD + A <-> ACD
-    "k19": 1, "k20": 0,  # AC + D <-> ACD
-    "k21": 1, "k22": 0,  # AC + B <-> ABC
-    "k23": 1, "k24": 0,  # AB + C <-> ABC
+    "k9":  kon, "k10": koff,  # AB + D <-> ABD
+    "k11": kon, "k12": koff,  # A + BD <-> ABD
+    "k13": kon, "k14": koff,  # BD + C <-> BCD
+    "k15": kon, "k16": koff,  # B + CD <-> BCD
+    "k17": kon, "k18": koff,  # CD + A <-> ACD
+    "k19": kon, "k20": koff,  # AC + D <-> ACD
+    "k21": kon, "k22": koff,  # AC + B <-> ABC
+    "k23": kon, "k24": koff,  # AB + C <-> ABC
 
-    "k25": 1, "k26": 0,  # AB + CD <-> ABCD
-    "k27": 1, "k28": 0,  # AC + BD <-> ABCD
+    "k25": kon, "k26": koff,  # AB + CD <-> ABCD
+    "k27": kon, "k28": koff,  # AC + BD <-> ABCD
 
-    "k29": 1, "k30": 0,  # ABD + C <-> ABCD
-    "k31": 1, "k32": 0,  # BCD + A <-> ABCD
-    "k33": 1, "k34": 0,  # ACD + B <-> ABCD
-    "k35": 1, "k36": 0   # ABC + D <-> ABCD
+    "k29": kon, "k30": koff,  # ABD + C <-> ABCD
+    "k31": kon, "k32": koff,  # BCD + A <-> ABCD
+    "k33": kon, "k34": koff,  # ACD + B <-> ABCD
+    "k35": kon, "k36": koff   # ABC + D <-> ABCD
 }
 
 # ---------------------------
@@ -221,7 +220,7 @@ def compute_propensities(counts, reactant_lists, rates, reactions):
 
 # Gillespie Algorithm
 def gillespie_ssa(initial_counts, t_max, reactions, reactant_lists, stoich_changes, rates,
-                  max_steps=int(1e7)):
+                  max_steps=int(1e9)):
     """
     Runs SSA until t_max or max_steps.
     Returns times array and history dict mapping species->list
@@ -346,6 +345,7 @@ if __name__ == "__main__":
     # Plotting results
     for i,s in enumerate(species):
         plt.figure(figsize=(6,3))
+        plt.xlim(0,2)
         plt.plot(times, history[s], label=f"{s} (SSA)")
         plt.plot(sol.t, sol.y[i], '--', label=f"{s} (ODE)")
         plt.xlabel("Time")
@@ -383,38 +383,53 @@ if __name__ == "__main__":
     for t_snap in snapshot_times:
         idx_snap = nearest_index(times, t_snap)
         state = {s: history[s][idx_snap] for s in species}
-        total = sum(state.values())
-        
-        # Compute proportions per subspecies
-        proportions = {g: np.array([state[s] / total for s in subspecies])
-                    for g, subspecies in groups.items()}
 
-        print(f"Proportions: {proportions["Tetramers"]}")
-        
+        # ---------------------------------------------------
+        # Correct total: count total molecules (monomer units)
+        # ---------------------------------------------------
+        total = sum(state[s] * len(s) for s in species)
+
+        # Compute proportions per group species
+        proportions = {
+            g: np.array([(state[s] * len(s)) / total for s in subspecies])
+            for g, subspecies in groups.items()
+        }
+
         # Plot
         fig, ax = plt.subplots(figsize=(8, 5))
         bottom = np.zeros(len(groups))
 
-        # Consistent color set for species
+        # Consistent colors
         cmap = plt.get_cmap("tab20")
         color_map = {s: cmap(i % 20) for i, s in enumerate(species)}
 
         for s in species:
-            # Find which group this species belongs to
             for j, (gname, subspecies) in enumerate(groups.items()):
                 if s in subspecies:
-                    frac = state[s] / total
-                    ax.bar(gname, frac, bottom=bottom[j], color=color_map[s], label=s if bottom[j] == 0 else "")
+
+                    # ---------------------------------------------------
+                    # Correct fraction: weighted by number of monomers
+                    # ---------------------------------------------------
+                    frac = (state[s] * len(s)) / total
+
+                    ax.bar(
+                        gname,
+                        frac,
+                        bottom=bottom[j],
+                        color=color_map[s],
+                        label=s if bottom[j] == 0 else "",
+                    )
                     bottom[j] += frac
 
-        ax.set_ylabel("Proportion")
+        ax.set_ylabel("Proportion of total molecules")
         ax.set_title(f"Species Proportions at t = {t_snap:.1f}")
-        
-        # Avoid duplicate entries in legend
+
+        # Deduplicate legend entries
         handles, labels = ax.get_legend_handles_labels()
         unique = dict(zip(labels, handles))
-        ax.legend(unique.values(), unique.keys(), bbox_to_anchor=(1.05, 1), loc="upper left")
-        
+        ax.legend(unique.values(), unique.keys(), bbox_to_anchor=(1.05, 1),
+                loc="upper left")
+
         plt.tight_layout()
         plt.savefig(f"snapshot_proportions_t{t_snap}.png", dpi=200)
         plt.close()
