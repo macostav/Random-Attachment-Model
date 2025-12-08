@@ -76,7 +76,7 @@ idx = {s: i for i, s in enumerate(species)}
 # Rate dictionary (k1..k36)
 energy = 1
 kon = 1
-koff = kon * np.exp(energy)
+koff = 0 # !!! DETAILED BALANCE kon * np.exp(energy)
 rates = {
     "k1": kon,  "k2": koff,   # A + B <-> AB
     "k3": kon,  "k4": koff,   # A + C <-> AC
@@ -237,6 +237,8 @@ def gillespie_ssa(initial_counts, t_max, reactions, reactant_lists, stoich_chang
         a0 = a.sum()
         if a0 <= 0.0:
             # no more reactions possible
+            print("DEBUG: stopping early because a0 == 0 at t =", t)
+            print(" final counts:", counts)
             break
 
         # draw two random numbers
@@ -328,7 +330,7 @@ if __name__ == "__main__":
     initial_counts[idx["D"]] = 100
     # all complexes start at 0
 
-    duration = 500.0  # simulation time
+    duration = 100.0  # simulation time
 
     times, history = gillespie_ssa(initial_counts, duration, reactions,
                                    reactant_lists, stoich_changes, rates)
@@ -378,7 +380,7 @@ if __name__ == "__main__":
 
     # Helper to get snapshot index
     def nearest_index(array, value):
-        return np.argmin(np.abs(array - value))
+        return np.argmin(np.abs(array - value)) # Index where this is minimized
 
     for t_snap in snapshot_times:
         idx_snap = nearest_index(times, t_snap)
@@ -417,7 +419,7 @@ if __name__ == "__main__":
                         frac,
                         bottom=bottom[j],
                         color=color_map[s],
-                        label=s if bottom[j] == 0 else "",
+                        label=s
                     )
                     bottom[j] += frac
 

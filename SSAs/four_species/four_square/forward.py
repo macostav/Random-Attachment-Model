@@ -24,6 +24,7 @@ T: Trimer
 F: Tetramer
 """
 
+### TODO: Check these because they are wrong.
 def odes(t,y):
     """
     Return odes for the system.
@@ -46,7 +47,7 @@ def odes(t,y):
 if __name__ == "__main__":
     # Initial conditions
     species = ["M", "D", "T", "F"]
-    y0 = [400, 0, 0, 0]
+    y0 = [40, 0, 0, 0]
     duration = 200
 
     t_span = (0, duration) 
