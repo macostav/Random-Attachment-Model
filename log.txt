@@ -78,3 +78,13 @@ TITLE: All forward experiment.
 Ran the experiment where all on rates are 1, and no backwards reactions are allowed. To better
 understand the result of this system (proportion of 4-square is about 0.5), ran some analysis
 on a simplified set of ODEs to describe this system.
+
+04/12/25
+TITLE: Adding statistics.
+Added a script that can run the simulation multiple times and extract statistics. To make sure 
+the set of time points we take is the same, we interpolate.
+
+11/12/25
+TITLE: Only-forward ODEs.
+I fixed the ODEs for the only-forward experiment. The issue was that I forgot to account for
+the fact that there are four of each M, D, T species, and only one T.

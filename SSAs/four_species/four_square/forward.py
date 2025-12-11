@@ -15,8 +15,9 @@ the following ODEs:
 3. dT/dt = 2MD - MT
 4. dF/dt = 2D^2 + 4MT
 
-In this script, we solve the above ODEs numerically to inform our predictions about the system.
-The labels are:
+These must be corrected to then account for the fact that there are 4 monomers, dimers, trimers, and only 
+one type of tetramer. Once this is done, we can use this script to solve the ODEs numerically and inform
+our predictions about the system. The labels are:
 
 M: Monomer
 D: Dimer
@@ -37,17 +38,17 @@ def odes(t,y):
     M, D, T, F = y
 
     # Individual ODEs
-    dM = -2*M**2 -2*M*D - M*T
-    dD = M**2 - 2*M*D - 2*D**2
-    dT = 2*M*D - M*T
-    dF = 1*D**2 + 4*M*T
+    dM = -(1/2)*M**2 -(1/2)*M*D - (1/4)*M*T
+    dD = (1/4)*M**2 - (1/2)*M*D - (1/4)*D**2
+    dT = (1/2)*M*D - (1/4)*M*T
+    dF = (1/8)*D**2 + (1/4)*M*T # Corrected to account for the fact that there is only one type of tetramer, as opposed to four of each other species.
     
     return [dM, dD, dT, dF]
 
 if __name__ == "__main__":
     # Initial conditions
     species = ["M", "D", "T", "F"]
-    y0 = [40, 0, 0, 0]
+    y0 = [4000, 0, 0, 0]
     duration = 200
 
     t_span = (0, duration) 
@@ -61,7 +62,7 @@ if __name__ == "__main__":
         plt.plot(sol.t, sol.y[i], '--')
         plt.xlabel("Time")
         plt.ylabel("Count")
-        plt.title(f"{s}")
+        plt.title(f"{s} counts (ODE solution)")
         plt.legend()
         plt.tight_layout()
         plt.savefig(f"forward_{s}.png", dpi=200)
@@ -71,14 +72,14 @@ if __name__ == "__main__":
     Mfinal, Dfinal, Tfinal, Ffinal = sol.y[:, -1]
     total_mass = sol.y[:, 0].sum()
 
-    print(f"""Final Proportions:
-    Monomer:  {Mfinal/total_mass:.4f}
-    Dimer:    {Dfinal/total_mass:.4f}
-    Trimer:   {Tfinal/total_mass:.4f}
-    Tetramer: {Ffinal/total_mass:.4f}
+    print(f"""Final Counts:
+    Monomer:  {Mfinal:.4f}
+    Dimer:    {Dfinal:.4f}
+    Trimer:   {Tfinal:.4f}
+    Tetramer: {Ffinal:.4f}
     """)
-    
-    # Suppose Mfinal, Dfinal, Tfinal, Ffinal are the *counts of molecules* of each size.
+
+    # Mfinal, Dfinal, Tfinal, Ffinal are the *counts of molecules* of each size.
     # If instead they are already mass (monomer-units), set counts_are_molecules = False.
     counts_are_molecules = True
 

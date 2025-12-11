@@ -237,8 +237,8 @@ def gillespie_ssa(initial_counts, t_max, reactions, reactant_lists, stoich_chang
         a0 = a.sum()
         if a0 <= 0.0:
             # no more reactions possible
-            print("DEBUG: stopping early because a0 == 0 at t =", t)
-            print(" final counts:", counts)
+            #print("DEBUG: stopping early because a0 == 0 at t =", t)
+            #print(" final counts:", counts)
             break
 
         # draw two random numbers
@@ -267,6 +267,60 @@ def gillespie_ssa(initial_counts, t_max, reactions, reactant_lists, stoich_chang
         times.append(t)
 
     return np.array(times), history
+
+# Same algorithm but keeps track of every event in a log
+def gillespie_ssa_with_log(initial_counts, t_max, reactions, reactant_lists, stoich_changes, rates,
+                        max_steps=int(1e7)):
+    counts = np.array(initial_counts, dtype=int)
+    t = 0.0
+
+    history = {s: [counts[idx_s]] for idx_s, s in enumerate(species)}
+    times = [t]
+    events = []  # list of dicts: {"t":..., "ri":..., "name":..., "counts": array}
+
+    for step in range(max_steps):
+        a = compute_propensities(counts, reactant_lists, rates, reactions)
+        a0 = a.sum()
+        if a0 <= 0.0:
+            # record final state and break
+            events.append({"t": t, "ri": None, "name": "STOP_no_propensity", "counts": counts.copy()})
+            break
+
+        r1 = random.random()
+        r2 = random.random()
+        tau = -math.log(r1) / a0
+        t += tau
+        if t > t_max:
+            # stop (we do not apply the reaction that would pass t_max)
+            events.append({"t": t_max, "ri": None, "name": "STOP_tmax_reached", "counts": counts.copy()})
+            # append final time to history
+            times.append(t_max)
+            for idx_s, s in enumerate(species):
+                history[s].append(int(counts[idx_s]))
+            break
+
+        # choose reaction
+        cum = np.cumsum(a)
+        target = r2 * a0
+        ri = np.searchsorted(cum, target)
+        # apply reaction stoichiometry
+        counts += stoich_changes[ri]
+
+        # record event
+        events.append({
+            "t": t,
+            "ri": ri,
+            "name": f"r{ri+1}_{reactions[ri]['k']}",
+            "counts": counts.copy()
+        })
+
+        # save history
+        times.append(t)
+        for idx_s, s in enumerate(species):
+            history[s].append(int(counts[idx_s]))
+
+    return np.array(times), history, events
+
 
 def odes(t,y):
     """
@@ -324,16 +378,16 @@ def odes(t,y):
 if __name__ == "__main__":
     # initial counts: set these as you like
     initial_counts = np.zeros(n_species, dtype=int)
-    initial_counts[idx["A"]] = 100
-    initial_counts[idx["B"]] = 100
-    initial_counts[idx["C"]] = 100
-    initial_counts[idx["D"]] = 100
+    initial_counts[idx["A"]] = 5
+    initial_counts[idx["B"]] = 5
+    initial_counts[idx["C"]] = 5
+    initial_counts[idx["D"]] = 5
     # all complexes start at 0
 
     duration = 100.0  # simulation time
 
-    times, history = gillespie_ssa(initial_counts, duration, reactions,
-                                   reactant_lists, stoich_changes, rates)
+    times, history, events = gillespie_ssa_with_log(initial_counts, duration, reactions,
+                                   reactant_lists, stoich_changes, rates) # !!! Change to gillespie_ssa to skip log
 
     
     # Solve deterministic ODEs for comparison
@@ -355,10 +409,21 @@ if __name__ == "__main__":
         plt.title(f"{s} (SSA)")
         plt.legend()
         plt.tight_layout()
-        plt.savefig(f"full_square_{s}.png", dpi=200)
+        # plt.savefig(f"full_square_{s}.png", dpi=200) !!! Enable to save plots
         plt.close()
 
     print("SSA finished.")
+
+    # Full information summary
+    print("Final time:", times[-1])
+    print("Final counts:", {s: history[s][-1] for s in species})
+    print("\nEvent log:")
+    for e in events:
+        t = e["t"]
+        name = e["name"]
+        counts = e["counts"]
+        counts_str = ", ".join(f"{s}={counts[idx[s]]}" for s in species)
+        print(f"t={t:.5f} | {name} | {counts_str}")
 
     #### VISUALIZATION OF SPECIES PROPORTIONS ####
 
@@ -390,12 +455,6 @@ if __name__ == "__main__":
         # Correct total: count total molecules (monomer units)
         # ---------------------------------------------------
         total = sum(state[s] * len(s) for s in species)
-
-        # Compute proportions per group species
-        proportions = {
-            g: np.array([(state[s] * len(s)) / total for s in subspecies])
-            for g, subspecies in groups.items()
-        }
 
         # Plot
         fig, ax = plt.subplots(figsize=(8, 5))
