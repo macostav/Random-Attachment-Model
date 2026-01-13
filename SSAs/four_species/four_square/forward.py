@@ -10,14 +10,13 @@ Experiment where 4-square system has only forward reactions, all with the same r
 if all monomers start with the same count, then the system is symmetric. We simply to only consider
 the following ODEs:
 
-1. dM/dt = -2M^2 -  2MD - MT
-2. dD/dt = M^2 - 2MD - D^2
-3. dT/dt = 2MD - MT
-4. dF/dt = 2D^2 + 4MT
+1. dM = -(1/2)*M**2 -(1/2)*M*D - (1/4)*M*T
+2. dD = (1/4)*M**2 - (1/2)*M*D - (1/4)*D**2
+3. dT = (1/2)*M*D - (1/4)*M*T
+4. dF = (1/8)*D**2 + (1/4)*M*T
 
-These must be corrected to then account for the fact that there are 4 monomers, dimers, trimers, and only 
-one type of tetramer. Once this is done, we can use this script to solve the ODEs numerically and inform
-our predictions about the system. The labels are:
+We can use this script to solve the ODEs numerically and inform our predictions about the system. 
+The labels are:
 
 M: Monomer
 D: Dimer
@@ -48,7 +47,7 @@ def odes(t,y):
 if __name__ == "__main__":
     # Initial conditions
     species = ["M", "D", "T", "F"]
-    y0 = [4000, 0, 0, 0]
+    y0 = [400, 0, 0, 0]
     duration = 200
 
     t_span = (0, duration) 

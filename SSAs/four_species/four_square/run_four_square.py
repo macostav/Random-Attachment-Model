@@ -110,31 +110,13 @@ if __name__ == "__main__":
     # Helper to get snapshot index
     def nearest_index(array, value):
         return np.argmin(np.abs(array - value)) # Index where this is minimized
+        
 
     # Colors
     cmap = plt.get_cmap("tab20")
     color_map = {s: cmap(i % 20) for i, s in enumerate(species)}
 
     print("Generating ensemble composition snapshots with species and group SDs...")
-
-    snapshot_times = [0, 0.1, 0.3, 1, duration]
-
-    # Species groups
-    monomers = [s for s in species if len(s) == 1]
-    dimers   = [s for s in species if len(s) == 2]
-    trimers  = [s for s in species if len(s) == 3]
-    tetramers= [s for s in species if len(s) == 4]
-
-    groups = {
-        "Monomers": monomers,
-        "Dimers": dimers,
-        "Trimers": trimers,
-        "Tetramers": tetramers,
-    }
-
-    # Colors
-    cmap = plt.get_cmap("tab20")
-    color_map = {s: cmap(i % 20) for i, s in enumerate(species)}
 
     # TODO CHECK ALL THIS
     for t_snap in snapshot_times:
@@ -143,31 +125,25 @@ if __name__ == "__main__":
         # Compute mean & SD for each species
         mean_state = {s: np.mean(all_trajectories[s][:, idx_snap]) for s in species}
         std_state  = {s: np.std(all_trajectories[s][:, idx_snap]) for s in species}
-
-        total_mean = sum(mean_state[s] * len(s) for s in species)
-        total_std = np.sqrt(sum(std_state[s]**2 * len(s)**2 for s in species))
+        stderr_state = {s: std_state[s] / np.sqrt(num_runs) for s in species} # Add 1/sqrt(N) for correct error bars
 
         # Proportions for each species; careful not to divide by zero
+        N_total = sum(mean_state[s] * len(s) for s in species) # Total number of particles
         proportions_mean = {}
         proportions_std  = {}
 
         for s in species:
             # Mean proportion
-            if total_mean > 0:
-                p_mean = (mean_state[s] * len(s)) / total_mean
-            else:
-                p_mean = 0.0
+            p_mean = (mean_state[s] * len(s)) / N_total
+
 
             # If mean count is zero, the proportion is exactly zero with no uncertainty
-            if mean_state[s] == 0 or total_mean == 0:
+            if mean_state[s] == 0:
                 p_std = 0.0
 
             else:
                 # Compute relative variance only when safe
-                rel_var = ((std_state[s] / mean_state[s])**2 +
-                        (total_std   / total_mean)**2)
-
-                p_std = p_mean * np.sqrt(rel_var)
+                p_std = (stderr_state[s] * len(s)) / N_total
 
             proportions_mean[s] = p_mean
             proportions_std[s]  = p_std

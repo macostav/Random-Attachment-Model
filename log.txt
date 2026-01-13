@@ -88,3 +88,10 @@ the set of time points we take is the same, we interpolate.
 TITLE: Only-forward ODEs.
 I fixed the ODEs for the only-forward experiment. The issue was that I forgot to account for
 the fact that there are four of each M, D, T species, and only one T.
+
+12/01/26
+TITLE: Error propagation and proportions as a function of system size.
+Fixed how I propagated the error bars for the proportions bar chart. Added a script to simulate
+the proportions of each group as a function of system size.
+
+
