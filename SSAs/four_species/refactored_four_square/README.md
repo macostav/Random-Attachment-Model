@@ -27,3 +27,4 @@ $$D_r \sim \frac{1}{\text{mass}(r)} \sim \frac{1}{\sqrt{\text{\# particles}}}.$$
 - `odes.py` contains the deterministic ODEs describing the macroscopic behaviour of the system.
 - `plot_utils.py` has helper functions for plotting.
 - `config.py` has general parameters for the simulation.
+- `detailed_balance.py` checks that detailed balance is satisfied in the system.

@@ -15,7 +15,7 @@ def compute_rates(reactants, products, bond_energy):
             pair = tuple(sorted((species_list[i], species_list[j])))
             if pair in bond_energy:
                 delta_U += bond_energy[pair]
-    koff = kon * np.exp(-delta_U)
+    koff = kon * np.exp(delta_U) # TODO: check whether +- is correct here.
     return kon, koff
 
 rates = {}
