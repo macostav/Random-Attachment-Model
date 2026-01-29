@@ -48,7 +48,7 @@ if __name__ == "__main__":
     # Initial conditions
     species = ["M", "D", "T", "F"]
     y0 = [400, 0, 0, 0]
-    duration = 200
+    duration = 200000
 
     t_span = (0, duration) 
     t_eval = np.linspace(*t_span, 1000) 

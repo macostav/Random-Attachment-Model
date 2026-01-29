@@ -99,4 +99,9 @@ TITLE: Detailed balance and code refactoring.
 Fixed the rates to ensure detailed balance is satisfied. Refactored to code base to abstract
 functionality and make it easier to change global parameters in the data.
 
+24/01/25
+TITLE: Monte Carlo Algorithm.
+Tried an implementation of the Metropolis-Hastings Algorithm. This could potentially work better than the
+Gillespie Algorithm because it does not need to keep track of all the reactions.
+
 
